@@ -16,11 +16,14 @@ BasicGame.Game.prototype = {
 
         this.shape1 = null;
         this.shape2 = null;
-
+        //set time for card flash on start
+        this.flash = 700;
         this.placeBoxes('2X4');
 
         this.totaltime = 0;
         this.totalclicks = 0;
+
+        
 
 
         this.timetext = this.add.bitmapText(this.world.centerX,25,'font','0',30);
@@ -35,6 +38,11 @@ BasicGame.Game.prototype = {
     startGame: function (pointer) {
 
         this.state.start('MainMenu');
+
+        
+        // for(var i=0;i<this.shapes.length;i++){
+        //         this.openShape(i);
+        //     }
 
     },
 
@@ -53,7 +61,7 @@ BasicGame.Game.prototype = {
                 this.state.start('EndScreen');
             }
             this.toggle = true;
-
+            this.flash= this.flash-200;
             this.shapeindex = 0;
 
             for(var i=0;i<this.shapes.length;i++){
@@ -62,6 +70,7 @@ BasicGame.Game.prototype = {
 
             this.shape1 = null;
             this.shape2 = null;
+            
 
             this.placeBoxes(this.str);
 
@@ -79,7 +88,7 @@ BasicGame.Game.prototype = {
         // console.log(a.no);
         this.totalclicks++;
         var win = false;
-        var out_tween = this.add.tween(a).to({alpha:0}, 100, Phaser.Easing.Sinusoidal.Out, true);
+        var out_tween = this.add.tween(a).to({alpha:1}, 100, Phaser.Easing.Sinusoidal.Out, true);
         var in_tween = function(){
             a.frameName = 'shape'+this.solution[a.no]+'.png';
             this.add.tween(a).to({alpha:1}, 10, Phaser.Easing.Sinusoidal.In, true);
@@ -189,21 +198,39 @@ BasicGame.Game.prototype = {
             default     :   break;
         }
         for(var i=0;i<this.shapes.length;i++){
-            this.shapes[i].frameName = 'covershape.png';
-            // this.shapes[i].scale.setTo(0.5,0.5);
             this.shapes[i].anchor.setTo(0.5,0.5);
             this.shapes[i].no = i;
             this.shapes[i].inputEnabled = true;
             this.shapes[i].events.onInputDown.add(this.openShape, this);
+            // this.shapes[i].events.onEnterBounds.add(this.openShape, this);
+            this.shapes[i].input.game.input.activePointer.isDown = true;
+            
+            // this.shapes[i].events.add(this.openShape, this);
 
-            this.shapes[i].alpha = 0;
-            this.add.tween(this.shapes[i]).to({alpha:1}, 1000, Phaser.Easing.Sinusoidal.Out, true);
+            
         }
         for(var i=0;i<this.shapes.length;i=i+2){
             this.solution[i] = i/2+1;
             this.solution[i+1] = i/2+1;
         }
+
         this.math.shuffleArray(this.solution);
+        for(var i=0;i<this.solution.length;i++){
+            this.shapes[i].frameName = 'shape'+this.solution[i]+'.png';
+            this.shapes[i].alpha = 0;
+            this.add.tween(this.shapes[i]).to({alpha:1}, 700, Phaser.Easing.Sinusoidal.Out, true);
+            
+            }
+        this.time.events.add(this.flash, function(){
+          console.log(this.flash);
+          for(var i=0;i<this.solution.length;i++){
+            this.shapes[i].frameName = 'covershape.png'}},this);
+          
+     
         console.log(this.solution);
+
+        // this.shapes[1].events.input.activePointer.isDown = true
+        // game.time.events.add(Phaser.Timer.SECOND * 4, fadePicture, this);
     }
-};
+
+  };
